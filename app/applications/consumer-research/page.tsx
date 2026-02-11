@@ -54,7 +54,7 @@ export default function ConsumerResearchPage() {
           <p className="mt-3 text-muted-foreground">Tobii Pro Spark for affordable UX testing, and Sticky by Tobii for remote ad and packaging studies.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <Link href="/products/pro-spark" className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Tobii Pro Spark</Link>
-            <Link href="/products/sticky" className="rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Sticky by Tobii</Link>
+            <Link href="/products" className="rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">Sticky by Tobii</Link>
           </div>
         </div>
       </section>

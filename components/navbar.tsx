@@ -1,112 +1,105 @@
 "use client"
 
-import React from "react"
-
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Search, Menu, X, ChevronDown, ChevronRight, ArrowRight, Globe, ExternalLink } from "lucide-react"
+import {
+  Search,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  ArrowRight,
+  Globe,
+  ExternalLink,
+} from "lucide-react"
 
-/* ─────────────────────────── DATA ─────────────────────────── */
+/* ─────────────────────────── SVG section icons ─────────────────────────── */
 
-// Products & Solutions left sidebar tabs
-const productsSidebarTabs = [
-  { id: "research", label: "Research & insights", href: "/products" },
-  { id: "integrations", label: "Integrations", href: "/solutions/screen-based", hasArrow: true },
-  { id: "autosense", label: "Autosense", href: "/solutions/autosense" },
-  { id: "gaming", label: "Gaming", href: "/gaming", external: true },
+function WearableIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12a4 4 0 0 1 4-4h1" />
+      <path d="M22 12a4 4 0 0 0-4-4h-1" />
+      <rect x="7" y="6" width="10" height="12" rx="2" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M9 12h-.5" />
+      <path d="M15.5 12H15" />
+    </svg>
+  )
+}
+
+function ScreenIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+      <circle cx="12" cy="10" r="1.5" />
+    </svg>
+  )
+}
+
+function SoftwareIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  )
+}
+
+/* ─────────────────────────── NAV DATA ─────────────────────────── */
+
+/* Products & Solutions ── Left sidebar */
+const productsSidebar = [
+  { id: "research", label: "Research & insights" },
+  { id: "integrations", label: "Integrations", hasArrow: true },
+  { id: "autosense", label: "Autosense" },
+  { id: "gaming", label: "Gaming", external: true },
 ] as const
 
-// Research & insights tab content
+/* Research tab ── Wearable eye trackers */
 const wearableTrackers = [
-  {
-    title: "Tobii Pro Glasses 3",
-    desc: "Advanced wearable eye tracker for behavioral research",
-    href: "/products/pro-glasses-3",
-  },
-  {
-    title: "Tobii Glasses X",
-    desc: "Easy-to-use wearable eye tracker for commercial and industrial environments",
-    href: "/products/glasses-x",
-  },
+  { title: "Tobii Pro Glasses 3", desc: "Advanced wearable eye tracker for behavioral research", href: "/products/pro-glasses-3" },
+  { title: "Tobii Glasses X", desc: "Easy-to-use wearable eye tracker for commercial and industrial environments", href: "/products/glasses-x" },
 ]
 
-const screenBasedTrackers = [
-  {
-    title: "Tobii Pro Spectrum",
-    desc: "Eye tracker with speeds up to 1200 Hz",
-    href: "/products/pro-spectrum",
-  },
-  {
-    title: "Tobii Pro Fusion",
-    desc: "Eye tracker with speeds up to 250 Hz",
-    href: "/products/pro-fusion",
-  },
-  {
-    title: "Tobii Pro Spark",
-    desc: "Eye tracker with speeds up to 60 Hz",
-    href: "/products/pro-spark",
-  },
+/* Research tab ── Screen-based eye trackers */
+const screenTrackers = [
+  { title: "Tobii Pro Spectrum", desc: "Eye tracker with speeds up to 1200 Hz", href: "/products/pro-spectrum" },
+  { title: "Tobii Pro Fusion", desc: "Eye tracker with speeds up to 250 Hz", href: "/products/pro-fusion" },
+  { title: "Tobii Pro Spark", desc: "Eye tracker with speeds up to 60 Hz", href: "/products/pro-spark" },
 ]
 
-const softwareProducts = [
-  {
-    title: "Tobii Pro Lab",
-    desc: "Eye tracking software for behavioral studies",
-    href: "/products/pro-lab",
-  },
-  {
-    title: "Glasses Explore",
-    desc: "Eye tracking software for easy insights",
-    href: "/products/glasses-explore",
-  },
-  {
-    title: "Sticky by Tobii",
-    desc: "Software for ad and packaging testing",
-    href: "/products/sticky",
-  },
+/* Research tab ── Software */
+const softwareItems = [
+  { title: "Tobii Pro Lab", desc: "Eye tracking software for behavioral studies", href: "/products/pro-lab" },
+  { title: "Glasses Explore", desc: "Eye tracking software for easy insights", href: "/products" },
+  { title: "Sticky by Tobii", desc: "Software for ad and packaging testing", href: "/products" },
 ]
 
+/* Research tab ── Additional Products */
 const additionalProducts = [
-  { label: "Accessories", href: "/products/accessories" },
-  { label: "Applications & developer kits", href: "/products/developer-kits" },
-  { label: "Open-source software", href: "/products/open-source" },
+  { label: "Accessories", href: "/products" },
+  { label: "Applications & developer kits", href: "/products" },
+  { label: "Open-source software", href: "/products" },
 ]
 
-// Integrations tab content
+/* Integrations tab */
 const integrationItems = [
-  {
-    title: "Screen-based integration solutions",
-    desc: "Seamless eye tracking integration for your products",
-    href: "/solutions/screen-based",
-  },
-  {
-    title: "Extended reality (XR)",
-    desc: "Eye tracking for VR, AR, and smart glasses",
-    href: "/solutions/xr",
-  },
+  { title: "Screen-based integration solutions", desc: "Seamless eye tracking integration for your products", href: "/solutions/screen-based" },
+  { title: "Extended reality (XR)", desc: "Eye tracking for VR, AR, and smart glasses", href: "/solutions/xr" },
 ]
 
-// Autosense tab content
+/* Autosense tab */
 const autosenseItems = [
-  {
-    title: "Tobii Autosense",
-    desc: "In-cabin sensing platform for automotive OEMs",
-    href: "/solutions/autosense",
-  },
-  {
-    title: "Driver monitoring system",
-    desc: "Real-time driver attention and drowsiness detection",
-    href: "/solutions/automotive",
-  },
-  {
-    title: "Occupancy monitoring system",
-    desc: "Intelligent occupant detection and classification",
-    href: "/solutions/automotive",
-  },
+  { title: "Tobii Autosense", desc: "In-cabin sensing platform for automotive OEMs", href: "/solutions/autosense" },
+  { title: "Driver monitoring system", desc: "Real-time driver attention and drowsiness detection", href: "/solutions/automotive" },
+  { title: "Occupancy monitoring system", desc: "Intelligent occupant detection and classification", href: "/solutions/automotive" },
 ]
 
-// Applications dropdown
+/* Applications dropdown */
 const applicationsMenu = [
   {
     category: "SCIENTIFIC RESEARCH",
@@ -126,7 +119,7 @@ const applicationsMenu = [
   },
 ]
 
-// Resources dropdown
+/* Resources dropdown */
 const resourcesMenu = [
   { title: "Resource center", desc: "Explore our learning material", href: "/resource-center" },
   { title: "Scientific publications", desc: "Published research using Tobii eye tracking", href: "/resource-center" },
@@ -135,7 +128,7 @@ const resourcesMenu = [
   { title: "Blog", desc: "Insights on eye tracking and attention computing", href: "/company/blog" },
 ]
 
-// Company dropdown
+/* Company dropdown */
 const companyMenu = [
   { title: "This is Tobii", desc: "Our story, mission, and technology", href: "/company/this-is-tobii" },
   { title: "Our global offices", desc: "Stockholm headquarters with global presence", href: "/company" },
@@ -153,206 +146,126 @@ export function Navbar() {
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const navRef = useRef<HTMLElement>(null)
 
-  const openDropdown = (id: string) => {
+  /* Hover helpers */
+  const openDropdown = useCallback((id: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
     setActiveDropdown(id)
     if (id === "products") setProductsTab("research")
-  }
+  }, [])
 
-  const scheduleClose = () => {
-    closeTimer.current = setTimeout(() => setActiveDropdown(null), 150)
-  }
+  const scheduleClose = useCallback(() => {
+    closeTimer.current = setTimeout(() => setActiveDropdown(null), 200)
+  }, [])
 
-  const cancelClose = () => {
+  const cancelClose = useCallback(() => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
-  }
+  }, [])
 
-  // close dropdown on escape
+  /* Close on Escape */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setActiveDropdown(null)
-        setSearchOpen(false)
-      }
+      if (e.key === "Escape") { setActiveDropdown(null); setSearchOpen(false) }
     }
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
+  /* Close on outside click */
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setActiveDropdown(null)
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [])
+
+  const closeNav = () => setActiveDropdown(null)
+
   return (
-    <header className="sticky top-0 z-50 bg-background">
+    <header ref={navRef} className="sticky top-0 z-50 bg-background">
       {/* ── Top utility bar ── */}
-      <div className="border-b border-border bg-secondary/50">
-        <div className="mx-auto flex h-8 max-w-[1400px] items-center justify-end gap-5 px-4 lg:px-10">
-          <Link href="/company/blog" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+      <div className="border-b border-border bg-[hsl(210,20%,97%)]">
+        <div className="mx-auto flex h-8 max-w-[1400px] items-center justify-end gap-5 px-4 text-[11px] lg:px-10">
+          <Link href="/company/blog" className="text-muted-foreground transition-colors hover:text-foreground">
             Tobii Blog
           </Link>
-          <Link href="/contact" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+          <Link href="/contact" className="text-muted-foreground transition-colors hover:text-foreground">
             Support
           </Link>
-          <a
-            href="https://www.tobii.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Corporate
-            <ExternalLink className="h-3 w-3" />
+          <a href="https://www.tobii.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground">
+            Corporate <ExternalLink className="h-2.5 w-2.5" />
           </a>
-          <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground">
-            <Globe className="h-3.5 w-3.5" />
-            English
+          <button type="button" className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground">
+            <Globe className="h-3 w-3" /> English
           </button>
         </div>
       </div>
 
       {/* ── Main nav bar ── */}
       <div className="border-b border-border">
-        <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between px-4 lg:px-10">
+        <div className="mx-auto flex h-[60px] max-w-[1400px] items-center justify-between px-4 lg:px-10">
           {/* Logo */}
-          <Link href="/" className="mr-8 flex shrink-0 items-center">
+          <Link href="/" className="mr-8 flex shrink-0 items-center" onClick={() => { closeNav(); setMobileOpen(false) }}>
             <TobiiLogo />
           </Link>
 
-          {/* Desktop nav items */}
-          <nav className="hidden items-center gap-0.5 lg:flex">
-            {/* Products & solutions (blue pill) */}
-            <div
-              onMouseEnter={() => openDropdown("products")}
-              onMouseLeave={scheduleClose}
-            >
-              <Link
-                href="/products"
-                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                  activeDropdown === "products"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                }`}
-              >
-                Products & solutions
-                <ChevronDown className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-1 lg:flex" role="menubar">
+            {/* Products & solutions -- blue pill */}
+            <NavDropdownTrigger
+              id="products"
+              label="Products & solutions"
+              isPill
+              activeDropdown={activeDropdown}
+              onOpen={openDropdown}
+              onClose={scheduleClose}
+            />
             {/* Applications */}
-            <div
-              onMouseEnter={() => openDropdown("applications")}
-              onMouseLeave={scheduleClose}
-            >
-              <Link
-                href="/applications"
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              >
-                Applications
-                <ChevronDown className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
-            {/* Research consultancy */}
-            <Link
-              href="/research-consultancy"
-              className="px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              onMouseEnter={() => setActiveDropdown(null)}
-            >
+            <NavDropdownTrigger id="applications" label="Applications" activeDropdown={activeDropdown} onOpen={openDropdown} onClose={scheduleClose} />
+            {/* Research consultancy -- plain link */}
+            <Link href="/research-consultancy" className="px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:text-primary" onMouseEnter={() => setActiveDropdown(null)}>
               Research consultancy
             </Link>
-
             {/* Resources */}
-            <div
-              onMouseEnter={() => openDropdown("resources")}
-              onMouseLeave={scheduleClose}
-            >
-              <Link
-                href="/resource-center"
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              >
-                Resources
-                <ChevronDown className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
+            <NavDropdownTrigger id="resources" label="Resources" activeDropdown={activeDropdown} onOpen={openDropdown} onClose={scheduleClose} />
             {/* Company */}
-            <div
-              onMouseEnter={() => openDropdown("company")}
-              onMouseLeave={scheduleClose}
-            >
-              <Link
-                href="/company"
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              >
-                Company
-                <ChevronDown className="h-3.5 w-3.5" />
-              </Link>
-            </div>
+            <NavDropdownTrigger id="company" label="Company" activeDropdown={activeDropdown} onOpen={openDropdown} onClose={scheduleClose} />
           </nav>
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setSearchOpen(!searchOpen)
-                setActiveDropdown(null)
-              }}
-              className="rounded-full p-2 transition-colors hover:bg-secondary"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 text-foreground" />
+            <button type="button" onClick={() => { setSearchOpen(!searchOpen); closeNav() }} className="rounded-full p-2 text-foreground transition-colors hover:bg-secondary" aria-label="Search">
+              <Search className="h-5 w-5" />
             </button>
-
-            <Link
-              href="/contact"
-              className="hidden rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 lg:inline-flex"
-            >
+            <Link href="/contact" className="hidden rounded-full bg-primary px-5 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 lg:inline-flex">
               Contact us
             </Link>
-
-            <button
-              type="button"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-              aria-label="Toggle menu"
-            >
+            <button type="button" onClick={() => { setMobileOpen(!mobileOpen); closeNav() }} className="rounded-full p-2 transition-colors hover:bg-secondary lg:hidden" aria-label="Toggle menu">
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── MEGA DROPDOWN: Products & solutions ── */}
+      {/* ── MEGA MENU: Products & Solutions ── */}
       {activeDropdown === "products" && (
-        <div
-          className="absolute left-0 right-0 z-50 hidden border-b border-border bg-background shadow-lg lg:block"
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="mx-auto flex max-w-[1400px] px-4 py-6 lg:px-10">
+        <div className="absolute left-0 right-0 z-50 hidden border-b border-border bg-[hsl(210,20%,98%)] shadow-lg lg:block" onMouseEnter={cancelClose} onMouseLeave={scheduleClose} role="menu">
+          <div className="mx-auto flex max-w-[1400px] px-4 lg:px-10">
             {/* LEFT SIDEBAR */}
-            <div className="w-56 shrink-0 border-r border-border pr-6">
-              {productsSidebarTabs.map((tab) => (
+            <div className="w-52 shrink-0 border-r-2 border-primary py-6 pr-6">
+              {productsSidebar.map((tab) => (
                 <div key={tab.id}>
                   {tab.external ? (
-                    <Link
-                      href={tab.href}
-                      className={`flex items-center justify-between py-2.5 text-sm font-medium transition-colors ${
-                        productsTab === tab.id ? "text-primary" : "text-foreground hover:text-primary"
-                      }`}
-                      onMouseEnter={() => setProductsTab(tab.id)}
-                    >
+                    <Link href="/gaming" className={`flex items-center justify-between py-2.5 text-[13px] font-medium transition-colors ${productsTab === tab.id ? "text-primary" : "text-foreground hover:text-primary"}`} onMouseEnter={() => setProductsTab(tab.id)} onClick={closeNav}>
                       {tab.label}
-                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                      <ExternalLink className="h-3 w-3 text-primary" />
                     </Link>
                   ) : (
-                    <button
-                      type="button"
-                      onMouseEnter={() => setProductsTab(tab.id)}
-                      className={`flex w-full items-center justify-between py-2.5 text-left text-sm font-medium transition-colors ${
-                        productsTab === tab.id ? "text-primary" : "text-foreground hover:text-primary"
-                      }`}
-                    >
+                    <button type="button" onMouseEnter={() => setProductsTab(tab.id)} className={`flex w-full items-center justify-between py-2.5 text-left text-[13px] font-medium transition-colors ${productsTab === tab.id ? "text-primary" : "text-foreground hover:text-primary"}`}>
                       {tab.label}
-                      {tab.hasArrow && <ArrowRight className="h-3.5 w-3.5" />}
+                      {tab.hasArrow && <ArrowRight className="h-3 w-3 text-primary" />}
                     </button>
                   )}
                 </div>
@@ -360,180 +273,120 @@ export function Navbar() {
             </div>
 
             {/* MAIN CONTENT */}
-            <div className="flex-1 pl-8 pr-8">
+            <div className="min-h-[320px] flex-1 py-6 pl-10 pr-6">
+              {/* Research tab */}
               {productsTab === "research" && (
-                <div className="space-y-6">
+                <div className="flex flex-col gap-7">
                   {/* Wearable */}
                   <div>
-                    <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground">
-                      Wearable Eye Trackers
-                    </h4>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-                      {wearableTrackers.map((item) => (
-                        <Link
-                          key={item.title}
-                          href={item.href}
-                          className="group py-1.5"
-                        >
-                          <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                            {item.title}
-                          </div>
-                          <div className="text-xs leading-relaxed text-muted-foreground">
-                            {item.desc}
-                          </div>
+                    <div className="mb-2 flex items-center gap-2">
+                      <WearableIcon className="h-[18px] w-[18px] text-foreground" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">Wearable Eye Trackers</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-10">
+                      {wearableTrackers.map((p) => (
+                        <Link key={p.title} href={p.href} className="group py-1.5" onClick={closeNav}>
+                          <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{p.title}</span>
+                          <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{p.desc}</span>
                         </Link>
                       ))}
                     </div>
                   </div>
-
                   {/* Screen-based */}
                   <div>
-                    <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground">
-                      Screen-Based Eye Trackers
-                    </h4>
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-1">
-                      {screenBasedTrackers.map((item) => (
-                        <Link
-                          key={item.title}
-                          href={item.href}
-                          className="group py-1.5"
-                        >
-                          <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                            {item.title}
-                          </div>
-                          <div className="text-xs leading-relaxed text-muted-foreground">
-                            {item.desc}
-                          </div>
+                    <div className="mb-2 flex items-center gap-2">
+                      <ScreenIcon className="h-[18px] w-[18px] text-foreground" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">Screen-Based Eye Trackers</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-x-8">
+                      {screenTrackers.map((p) => (
+                        <Link key={p.title} href={p.href} className="group py-1.5" onClick={closeNav}>
+                          <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{p.title}</span>
+                          <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{p.desc}</span>
                         </Link>
                       ))}
                     </div>
                   </div>
-
                   {/* Software */}
                   <div>
-                    <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground">
-                      Software
-                    </h4>
-                    <div className="grid grid-cols-3 gap-x-8 gap-y-1">
-                      {softwareProducts.map((item) => (
-                        <Link
-                          key={item.title}
-                          href={item.href}
-                          className="group py-1.5"
-                        >
-                          <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                            {item.title}
-                          </div>
-                          <div className="text-xs leading-relaxed text-muted-foreground">
-                            {item.desc}
-                          </div>
+                    <div className="mb-2 flex items-center gap-2">
+                      <SoftwareIcon className="h-[18px] w-[18px] text-foreground" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">Software</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-x-8">
+                      {softwareItems.map((p) => (
+                        <Link key={p.title} href={p.href} className="group py-1.5" onClick={closeNav}>
+                          <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{p.title}</span>
+                          <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{p.desc}</span>
                         </Link>
                       ))}
                     </div>
                   </div>
                 </div>
               )}
-
+              {/* Integrations tab */}
               {productsTab === "integrations" && (
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                    Integration Solutions
+                <div>
+                  <h4 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-foreground">
+                    <ScreenIcon className="h-[18px] w-[18px]" /> Integration Solutions
                   </h4>
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                  <div className="grid grid-cols-2 gap-x-10 gap-y-3">
                     {integrationItems.map((item) => (
-                      <Link
-                        key={item.title}
-                        href={item.href}
-                        className="group py-1.5"
-                      >
-                        <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                          {item.title}
-                        </div>
-                        <div className="text-xs leading-relaxed text-muted-foreground">
-                          {item.desc}
-                        </div>
+                      <Link key={item.title} href={item.href} className="group py-1" onClick={closeNav}>
+                        <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{item.title}</span>
+                        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{item.desc}</span>
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
-
+              {/* Autosense tab */}
               {productsTab === "autosense" && (
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                    Automotive Solutions
+                <div>
+                  <h4 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-foreground">
+                    <ScreenIcon className="h-[18px] w-[18px]" /> Automotive Solutions
                   </h4>
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                  <div className="grid grid-cols-2 gap-x-10 gap-y-3">
                     {autosenseItems.map((item) => (
-                      <Link
-                        key={item.title}
-                        href={item.href}
-                        className="group py-1.5"
-                      >
-                        <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                          {item.title}
-                        </div>
-                        <div className="text-xs leading-relaxed text-muted-foreground">
-                          {item.desc}
-                        </div>
+                      <Link key={item.title} href={item.href} className="group py-1" onClick={closeNav}>
+                        <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{item.title}</span>
+                        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{item.desc}</span>
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
-
+              {/* Gaming tab */}
               {productsTab === "gaming" && (
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                    Gaming Products
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
+                <div>
+                  <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-foreground">Gaming Products</h4>
+                  <p className="max-w-lg text-[13px] leading-relaxed text-muted-foreground">
                     Our gaming offering includes a range of products and solutions that deliver head and eye tracking for in-game immersion, streaming, and esports.
                   </p>
-                  <Link
-                    href="/gaming"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
-                  >
-                    Explore gaming products <ArrowRight className="h-4 w-4" />
+                  <Link href="/gaming" className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-primary hover:underline" onClick={closeNav}>
+                    Explore gaming products <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               )}
             </div>
 
             {/* RIGHT SIDEBAR */}
-            <div className="w-56 shrink-0 space-y-6">
-              {/* Help CTA card */}
-              <div className="overflow-hidden rounded-lg bg-primary">
-                <div className="relative h-20">
-                  <Image
-                    src="/images/contact-hero.jpg"
-                    alt="Consultants helping with eye tracking"
-                    fill
-                    className="object-cover opacity-60"
-                  />
+            <div className="w-52 shrink-0 py-6 pl-6">
+              {/* CTA card */}
+              <Link href="/contact" className="block overflow-hidden rounded-lg" onClick={closeNav}>
+                <div className="relative h-32 bg-primary">
+                  <div className="absolute inset-0 flex flex-col justify-center p-4">
+                    <span className="text-[13px] font-bold leading-tight text-primary-foreground">Need help getting started?</span>
+                    <span className="mt-1.5 text-[11px] leading-relaxed text-primary-foreground/90">Our consultants can help manage your entire study.</span>
+                  </div>
                 </div>
-                <div className="px-4 py-3">
-                  <h4 className="text-sm font-bold text-primary-foreground">
-                    Need help getting started?
-                  </h4>
-                  <p className="mt-1 text-xs leading-relaxed text-primary-foreground/80">
-                    Our consultants can help manage your entire study.
-                  </p>
-                </div>
-              </div>
-
-              {/* Additional Products */}
-              <div>
-                <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground">
-                  Additional Products
-                </h4>
-                <div className="flex flex-col gap-2">
+              </Link>
+              {/* Additional products */}
+              <div className="mt-5">
+                <span className="mb-2.5 block text-center text-[10px] font-bold uppercase tracking-wider text-foreground">Additional Products</span>
+                <div className="flex flex-col items-center gap-1.5">
                   {additionalProducts.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                    >
+                    <Link key={item.label} href={item.href} className="text-[12px] text-muted-foreground transition-colors hover:text-primary" onClick={closeNav}>
                       {item.label}
                     </Link>
                   ))}
@@ -546,24 +399,14 @@ export function Navbar() {
 
       {/* ── DROPDOWN: Applications ── */}
       {activeDropdown === "applications" && (
-        <div
-          className="absolute left-0 right-0 z-50 hidden border-b border-border bg-background shadow-lg lg:block"
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="mx-auto flex max-w-[1400px] gap-12 px-4 py-6 lg:px-10">
+        <div className="absolute left-0 right-0 z-50 hidden border-b border-border bg-[hsl(210,20%,98%)] shadow-lg lg:block" onMouseEnter={cancelClose} onMouseLeave={scheduleClose} role="menu">
+          <div className="mx-auto flex max-w-[1400px] gap-16 px-4 py-8 lg:px-10">
             {applicationsMenu.map((group) => (
               <div key={group.category}>
-                <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground">
-                  {group.category}
-                </h4>
+                <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-foreground">{group.category}</h4>
                 <div className="flex flex-col gap-1">
                   {group.items.map((item) => (
-                    <Link
-                      key={item.title}
-                      href={item.href}
-                      className="py-1.5 text-sm text-foreground transition-colors hover:text-primary"
-                    >
+                    <Link key={item.title} href={item.href} className="py-2 text-[13px] text-foreground transition-colors hover:text-primary" onClick={closeNav}>
                       {item.title}
                     </Link>
                   ))}
@@ -576,25 +419,13 @@ export function Navbar() {
 
       {/* ── DROPDOWN: Resources ── */}
       {activeDropdown === "resources" && (
-        <div
-          className="absolute left-0 right-0 z-50 hidden border-b border-border bg-background shadow-lg lg:block"
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-10">
-            <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+        <div className="absolute left-0 right-0 z-50 hidden border-b border-border bg-[hsl(210,20%,98%)] shadow-lg lg:block" onMouseEnter={cancelClose} onMouseLeave={scheduleClose} role="menu">
+          <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-10">
+            <div className="grid grid-cols-3 gap-x-10 gap-y-4">
               {resourcesMenu.map((item) => (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="group py-1.5"
-                >
-                  <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                    {item.title}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {item.desc}
-                  </div>
+                <Link key={item.title} href={item.href} className="group py-1" onClick={closeNav}>
+                  <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{item.title}</span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{item.desc}</span>
                 </Link>
               ))}
             </div>
@@ -604,25 +435,13 @@ export function Navbar() {
 
       {/* ── DROPDOWN: Company ── */}
       {activeDropdown === "company" && (
-        <div
-          className="absolute left-0 right-0 z-50 hidden border-b border-border bg-background shadow-lg lg:block"
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-10">
-            <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+        <div className="absolute left-0 right-0 z-50 hidden border-b border-border bg-[hsl(210,20%,98%)] shadow-lg lg:block" onMouseEnter={cancelClose} onMouseLeave={scheduleClose} role="menu">
+          <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-10">
+            <div className="grid grid-cols-3 gap-x-10 gap-y-4">
               {companyMenu.map((item) => (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="group py-1.5"
-                >
-                  <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                    {item.title}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {item.desc}
-                  </div>
+                <Link key={item.title} href={item.href} className="group py-1" onClick={closeNav}>
+                  <span className="text-[13px] font-semibold text-foreground group-hover:text-primary">{item.title}</span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{item.desc}</span>
                 </Link>
               ))}
             </div>
@@ -634,13 +453,8 @@ export function Navbar() {
       {searchOpen && (
         <div className="border-b border-border bg-background px-4 py-4">
           <div className="mx-auto flex max-w-2xl items-center gap-3">
-            <Search className="h-5 w-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search tobii.com..."
-              className="w-full bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
-              autoFocus
-            />
+            <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <input type="text" placeholder="Search tobii.com..." className="w-full bg-transparent text-foreground outline-none placeholder:text-muted-foreground" autoFocus />
             <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search">
               <X className="h-5 w-5 text-muted-foreground" />
             </button>
@@ -650,114 +464,51 @@ export function Navbar() {
 
       {/* ── Mobile menu ── */}
       {mobileOpen && (
-        <div className="fixed inset-x-0 top-[calc(3.5rem+2rem+1px+1px)] bottom-0 z-40 overflow-y-auto border-t border-border bg-background lg:hidden">
+        <div className="fixed inset-x-0 top-[calc(60px+32px+2px)] bottom-0 z-40 overflow-y-auto bg-background lg:hidden">
           <nav className="flex flex-col px-4 py-4">
-            {/* Products & solutions */}
-            <MobileAccordion
-              label="Products & solutions"
-              open={mobileSubmenu === "products"}
-              onToggle={() => setMobileSubmenu(mobileSubmenu === "products" ? null : "products")}
-            >
+            <MobileAccordion label="Products & solutions" open={mobileSubmenu === "products"} onToggle={() => setMobileSubmenu(mobileSubmenu === "products" ? null : "products")}>
               <div className="flex flex-col gap-0.5">
-                <p className="px-2 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Wearable</p>
-                {wearableTrackers.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
-                <p className="px-2 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Screen-based</p>
-                {screenBasedTrackers.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
-                <p className="px-2 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Software</p>
-                {softwareProducts.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
-                <p className="px-2 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Integrations</p>
-                {integrationItems.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
-                <MobileLink href="/solutions/autosense" onClick={() => setMobileOpen(false)}>
-                  Tobii Autosense
-                </MobileLink>
-                <MobileLink href="/gaming" onClick={() => setMobileOpen(false)}>
-                  Gaming
-                </MobileLink>
+                <MobileCategory>Wearable</MobileCategory>
+                {wearableTrackers.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
+                <MobileCategory>Screen-based</MobileCategory>
+                {screenTrackers.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
+                <MobileCategory>Software</MobileCategory>
+                {softwareItems.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
+                <MobileCategory>Integrations</MobileCategory>
+                {integrationItems.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
+                <MobileLink href="/solutions/autosense" onClick={() => setMobileOpen(false)}>Tobii Autosense</MobileLink>
+                <MobileLink href="/gaming" onClick={() => setMobileOpen(false)}>Gaming</MobileLink>
               </div>
             </MobileAccordion>
 
-            {/* Applications */}
-            <MobileAccordion
-              label="Applications"
-              open={mobileSubmenu === "applications"}
-              onToggle={() => setMobileSubmenu(mobileSubmenu === "applications" ? null : "applications")}
-            >
+            <MobileAccordion label="Applications" open={mobileSubmenu === "applications"} onToggle={() => setMobileSubmenu(mobileSubmenu === "applications" ? null : "applications")}>
               <div className="flex flex-col gap-0.5">
                 {applicationsMenu.map((group) => (
                   <div key={group.category}>
-                    <p className="px-2 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      {group.category}
-                    </p>
-                    {group.items.map((i) => (
-                      <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                        {i.title}
-                      </MobileLink>
-                    ))}
+                    <MobileCategory>{group.category}</MobileCategory>
+                    {group.items.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
                   </div>
                 ))}
               </div>
             </MobileAccordion>
 
-            {/* Research consultancy */}
-            <Link
-              href="/research-consultancy"
-              className="flex items-center justify-between border-b border-border py-3.5 text-sm font-medium text-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link href="/research-consultancy" className="flex items-center justify-between border-b border-border py-3.5 text-sm font-medium text-foreground" onClick={() => setMobileOpen(false)}>
               Research consultancy
             </Link>
 
-            {/* Resources */}
-            <MobileAccordion
-              label="Resources"
-              open={mobileSubmenu === "resources"}
-              onToggle={() => setMobileSubmenu(mobileSubmenu === "resources" ? null : "resources")}
-            >
+            <MobileAccordion label="Resources" open={mobileSubmenu === "resources"} onToggle={() => setMobileSubmenu(mobileSubmenu === "resources" ? null : "resources")}>
               <div className="flex flex-col gap-0.5">
-                {resourcesMenu.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
+                {resourcesMenu.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
               </div>
             </MobileAccordion>
 
-            {/* Company */}
-            <MobileAccordion
-              label="Company"
-              open={mobileSubmenu === "company"}
-              onToggle={() => setMobileSubmenu(mobileSubmenu === "company" ? null : "company")}
-            >
+            <MobileAccordion label="Company" open={mobileSubmenu === "company"} onToggle={() => setMobileSubmenu(mobileSubmenu === "company" ? null : "company")}>
               <div className="flex flex-col gap-0.5">
-                {companyMenu.map((i) => (
-                  <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>
-                    {i.title}
-                  </MobileLink>
-                ))}
+                {companyMenu.map((i) => <MobileLink key={i.title} href={i.href} onClick={() => setMobileOpen(false)}>{i.title}</MobileLink>)}
               </div>
             </MobileAccordion>
 
-            <Link
-              href="/contact"
-              className="mt-6 rounded-full bg-primary px-5 py-2.5 text-center text-sm font-medium text-primary-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link href="/contact" className="mt-6 rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground" onClick={() => setMobileOpen(false)}>
               Contact us
             </Link>
           </nav>
@@ -767,26 +518,50 @@ export function Navbar() {
   )
 }
 
-/* ─────────────────────── MOBILE HELPERS ─────────────────────── */
+/* ─────────────────────── DESKTOP TRIGGER ─────────────────────── */
 
-function MobileAccordion({
+function NavDropdownTrigger({
+  id,
   label,
-  open,
-  onToggle,
-  children,
+  isPill,
+  activeDropdown,
+  onOpen,
+  onClose,
 }: {
+  id: string
   label: string
-  open: boolean
-  onToggle: () => void
-  children: React.ReactNode
+  isPill?: boolean
+  activeDropdown: string | null
+  onOpen: (id: string) => void
+  onClose: () => void
 }) {
+  const isActive = activeDropdown === id
   return (
-    <div className="border-b border-border">
+    <div onMouseEnter={() => onOpen(id)} onMouseLeave={onClose}>
       <button
         type="button"
-        onClick={onToggle}
-        className="flex w-full items-center justify-between py-3.5 text-sm font-medium text-foreground"
+        role="menuitem"
+        aria-expanded={isActive}
+        aria-haspopup="true"
+        className={
+          isPill
+            ? "flex items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-[13px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            : `flex items-center gap-1 px-4 py-2 text-[13px] font-medium transition-colors ${isActive ? "text-primary" : "text-foreground hover:text-primary"}`
+        }
       >
+        {label}
+        <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isActive ? "rotate-180" : ""}`} />
+      </button>
+    </div>
+  )
+}
+
+/* ─────────────────────── MOBILE HELPERS ─────────────────────── */
+
+function MobileAccordion({ label, open, onToggle, children }: { label: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+  return (
+    <div className="border-b border-border">
+      <button type="button" onClick={onToggle} className="flex w-full items-center justify-between py-3.5 text-sm font-medium text-foreground">
         {label}
         <ChevronRight className={`h-4 w-4 transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
@@ -795,21 +570,13 @@ function MobileAccordion({
   )
 }
 
-function MobileLink({
-  href,
-  onClick,
-  children,
-}: {
-  href: string
-  onClick: () => void
-  children: React.ReactNode
-}) {
+function MobileCategory({ children }: { children: React.ReactNode }) {
+  return <p className="px-2 pt-3 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{children}</p>
+}
+
+function MobileLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <Link
-      href={href}
-      className="rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
-      onClick={onClick}
-    >
+    <Link href={href} className="rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-primary" onClick={onClick}>
       {children}
     </Link>
   )
@@ -819,17 +586,8 @@ function MobileLink({
 
 function TobiiLogo() {
   return (
-    <svg viewBox="0 0 100 32" className="h-7 w-auto" aria-label="Tobii" role="img">
-      <text
-        x="0"
-        y="24"
-        fontFamily="Inter, sans-serif"
-        fontWeight="700"
-        fontSize="28"
-        fill="currentColor"
-        letterSpacing="-1"
-        className="text-foreground"
-      >
+    <svg viewBox="0 0 80 28" className="h-8 w-auto" aria-label="Tobii" role="img">
+      <text x="0" y="23" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="28" fill="currentColor" letterSpacing="-0.5" className="text-foreground">
         tobii
       </text>
     </svg>
